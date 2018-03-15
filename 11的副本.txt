@@ -1,8 +1,0 @@
-some
-words
-one
-two
-three
-four
-five
-six
