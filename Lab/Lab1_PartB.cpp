@@ -10,10 +10,13 @@ using namespace std;
 
 //根据文件读取所有单词
 void getset(vector<string> &mywords, string file);
+
 //遍历单词，构造字典
 void getmap(map<string,vector<string> > &mymap, vector<string> myword, int N);
+
 //输出结果
 void getresult(map<string,vector<string> > mymap, int N, int num);
+
 int main(){
     srand((int)time(NULL));
     //读取用户输入
@@ -118,7 +121,7 @@ void getresult(map<string,vector<string> > mymap, int N, int num){
     while(index--)
         iter++;
     //循环输出
-    string key = iter->first,str;
+    string key = iter->first, str;
     cout << "...";
     while(num-- > N){
         int flag = key.find(' ');

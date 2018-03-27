@@ -12,6 +12,7 @@ const int ALPHA_LENGTH = 26;
 
 //取得用户输入
 void getWords(string &word1, string &word2);
+
 //输出题目要求
 void printWordLadder(string word1, string word2, string dict);
 
