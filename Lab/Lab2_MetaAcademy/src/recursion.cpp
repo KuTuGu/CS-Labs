@@ -4,6 +4,7 @@
  */
 
 #include <math.h>
+#include <map>
 #include "recursion.h"
 #include "map.h"
 #include "vector.h"
@@ -38,20 +39,60 @@ void serpinskii(GWindow &w, int leftX, int leftY, int size, int order) {
 }
 
 int floodFill(GBufferedImage& image, int x, int y, int newColor) {
+    int num = 0;
     if(image.getRGB(x, y) == newColor)
-        return 0;
+        return num;
     else{
         image.setRGB(x, y, color);
+        num++;
+        if(image.inBounds(x, y) && image.getRGB(x + 1, y) == newColor)
+            num += floodFill(image, x + 1, y, newColor);
+        else if(image.inBounds(x, y) && image.getRGB(x - 1, y) == newColor)
+            num += floodFill(image, x - 1, y, newColor);
+        else if(image.inBounds(x, y) && image.getRGB(x, y + 1) == newColor)
+            num += floodFill(image, x, y + 1, newColor);
+        else
+            num += floodFill(image, x, y - 1, newColor);
+        return num;
     }
 }
 
-void personalCurriculum(Map<string, Vector<string>> & prereqMap,string goal) {
-    // your code here
-    cout << "[recursion personal curriculum called]" << endl;
+void personalCurriculum(Map< string, Vector<string> > &prereqMap, string goal) {
+    map< string, Vector<string> >::iterator iter;
+    if(prereqMap[goal]){
+        Vector<string> before = prereqMap[goal];
+        for(int i = 0;i < before.size();i++){
+            personalCurriculum(prereqMap, before[i]);
+            for(iter = prereqMap.begin(); iter != prereqMap.end(); iter++) {
+                    Vector<string> value = iter->second;
+                    for(int j = 0;j < value.size();j++){
+                        if(value[j] == before[i])
+                            value.removeAt(j);
+                    }
+                    prereqMap[iter->first] = value;
+            }
+
+        }
+    }
+    else
+        cout << goal << endl;
 }
 
-string generate(Map<string, Vector<string> > & grammar, string symbol) {
-    // your code here
-    cout << "[recursion generate called]" << endl;
-    return "";
+string generate(Map< string, Vector<string> > &grammar, string symbol){
+    Vector<string> vec;
+    string str, result = "";
+    if(grammar.find(symbol) != grammar.end()){
+        vec = grammar[symbol];
+        int random = randomReal(0, vec.size() - 1);
+        str = vec[random];
+        TokenScanner scanner(str);
+        while (scanner.hasMoreTokens()) {
+            string token = scanner.nextToken();
+            result += generate(grammar, token);
+        }
+    }
+    else
+        result = symbol;
+    return result;
 }
+

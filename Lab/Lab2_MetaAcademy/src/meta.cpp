@@ -178,7 +178,7 @@ void demoExploration(GWindow &window) {
     window.addToRegion(&done, "SOUTH");
 
     // use buffered image to store individual pixels
-    GBufferedImage floodFillPixels(
+    GBufferedImage floodFillPixels(*/
                 /* x */ 0,
                 /* y */ 0,
                 /* width */ window.getWidth(),
