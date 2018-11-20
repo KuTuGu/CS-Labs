@@ -164,7 +164,7 @@ int getByte(int x, int n) {
  */
 int logicalShift(int x, int n) {
   /*改变符号位*/
-  return (((1 << 31) + ~0) & x) >> n;
+  return (((1 << 30) + ~0) & x) >> n;
 }
 /*
  * bitCount - returns count of number of 1's in word

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Backtrack</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
+        [v-cloak]{
+            display: none;
+        }
+        html, body, #app{
+            height:100%;
+        }
+        #app{
+            text-align: center;
+
+        }
+        #app::after, .cen{
+            display: inline-block;
+            vertical-align: middle;
+        }
+        #app:after{
+            content:'';
+            height:100%;
+        }
+        button{
+            opacity: 0.5; 
+            background-color: #D3D3D3;
+            color: black;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+        .row{
+            height: 20px;
+            white-space: nowrap;
+        }
+        .square{
+            display: inline-block;
+            border: 1px solid black;
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+      <div class = "cen">
+        <maze :x = "x" :y = "y"></maze>
+        <options></options>
+      </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>    
+    <script>
+        var bus = new Vue();
+
+        new Vue({
+            el:'#app',
+            data:{
+                x: 0,
+                y: 0,
+            },
+            created(){
+                this.x = parseInt(prompt("请输入迷宫行数"));
+                this.y = parseInt(prompt("请输入迷宫列数"));
+            },
+            components:{
+                'maze':{
+                    props:['x', 'y'],
+                    template: `
+                            <div>
+                                <!--用变量显示数字要乘1-->
+                                <div v-for = "i in x * 1" class = "row">
+                                    <div v-for = "j in y * 1" class = "square"></div>
+                                </div>
+                            </div>
+                              `,
+                    data(){
+                        return {
+                            row: -1,
+                            col: -1,
+                            flag: -1,
+                            zero: -1,
+                            stack: [],
+                            visit: [],
+                            q: 0,
+                            move: [this.moveT, this.moveR, this.moveB, this.moveL],
+                        }
+                    },
+                    methods:{
+                        isSafe(sq, row, col, x, y){
+                            if(!this.visit[row * this.y + col] && row >= 0 && row <= x - 1 && col >= 0 && col <= y - 1)
+                                return true;
+                            return false;
+                        },
+                        reset(){
+                            location.reload();
+                        },
+                        start(sq){
+                            this.row = parseInt(Math.random() * this.x),
+                            this.col = parseInt(Math.random() * this.y);
+                            this.flag = this.row * this.y + this.col;
+                            
+                            sq[this.flag].style.backgroundColor = "orange";
+                            this.visit[this.flag] = 1;
+                            this.stack[this.q++] = {row: -1, col: -1};
+                        },
+                        moveT(sq){
+                            if(this.isSafe(sq, this.row - 1, this.col, this.x, this.y)){
+                                this.zero = 1;
+                                this.stack[this.q++] = {row: this.row, col: this.col};
+                                this.row--;
+
+                                sq[this.flag].style.borderTopColor = "white";
+                                this.flag = this.flag - this.y;
+                                sq[this.flag].style.backgroundColor = "orange";
+                                sq[this.flag].style.borderDownColor = "white";
+                            }
+                        },
+                        moveR(sq){
+                            if(this.isSafe(sq, this.row, this.col + 1, this.x, this.y)){
+                                this.zero = 1;
+                                this.stack[this.q++] = {row: this.row, col: this.col};
+                                this.col++;
+                                
+                                sq[this.flag].style.borderRightColor = "white";
+                                this.flag = this.flag + 1;
+                                sq[this.flag].style.backgroundColor = "orange";
+                                sq[this.flag].style.borderLeftColor = "white";
+                            }
+                        },
+                        moveB(sq){
+                            if(this.isSafe(sq, this.row + 1, this.col, this.x, this.y)){
+                                this.zero = 1;
+                                this.stack[this.q++] = {row: this.row, col: this.col};
+                                this.row++;
+
+                                sq[this.flag].style.borderDownColor = "white";
+                                this.flag = this.flag + this.y;
+                                sq[this.flag].style.backgroundColor = "orange";
+                                sq[this.flag].style.borderTopColor = "white";
+                            }
+                        },
+                        moveL(sq){
+                            if(this.isSafe(sq, this.row, this.col - 1, this.x, this.y)){
+                                this.zero = 1;
+                                this.stack[this.q++] = {row: this.row, col: this.col};
+                                this.col--;
+
+                                sq[this.flag].style.borderLeftColor = "white";
+                                this.flag = this.flag - 1;
+                                sq[this.flag].style.backgroundColor = "orange";
+                                sq[this.flag].style.borderRightColor = "white";
+                            }
+                        },
+                        back(sq){
+                            if(!this.q)
+                                return;
+                            sq[this.flag].style.backgroundColor = "white";
+                            this.visit[this.flag] = 1;
+                            this.q--;
+                            this.row = this.stack[this.q].row;
+                            this.col = this.stack[this.q].col;
+                            this.flag = this.row * this.y + this.col;
+                        },
+                        step(sq){
+                            if(this.flag == -1)
+                                this.start(sq);
+
+                            else{
+                                this.visit[this.flag] = 1;
+                                var index = parseInt(Math.random() * 4);
+                                for(var i = 0;i < 4;i++){
+                                    index = (index + i) % 4;
+                                    this.move[index](sq);
+                                    if(this.zero)
+                                        break; 
+                                } 
+                            
+                                if(!this.zero)
+                                    this.back(sq);
+
+                                this.zero = 0;
+                            }
+                        },
+                        section(sq){
+                            if(!parent)
+                                var parent = sq[0].parentNode.parentNode;
+                            parent.style.display = "none";
+                            var doe = 0;
+                            if(this.flag == -1)
+                                this.start(sq);
+
+                            else{
+                                while(this.isSafe(sq, this.row - 1, this.col, this.x, this.y) || this.isSafe(sq, this.row, this.col + 1, this.x, this.y) || this.isSafe(sq, this.row + 1, this.col, this.x, this.y) || this.isSafe(sq, this.row, this.col - 1, this.x, this.y)){
+                                    this.step(sq);
+                                    doe = 1;
+                                }
+                                if(!doe){
+                                    while(!(this.isSafe(sq, this.row - 1, this.col, this.x, this.y) || this.isSafe(sq, this.row, this.col + 1, this.x, this.y) || this.isSafe(sq, this.row + 1, this.col, this.x, this.y) || this.isSafe(sq, this.row, this.col - 1, this.x, this.y))){
+                                        this.back(sq);
+                                        if(!this.q)
+                                            break;
+                                    }
+                                }
+                            }
+
+                            parent.style.display = "block";
+                        },
+                        run(sq){
+                            if(this.flag == -1)
+                                this.start(sq);
+
+                            while(this.q)
+                                this.section(sq);
+                        },
+                    },
+                    mounted(){
+                        bus.$on('pass', (i, sq) => {
+                            switch(i){
+                                case 0: this.reset();  break;
+                                case 1: this.step(sq);   break;
+                                case 2: this.section(sq);break;
+                                case 3: this.run(sq);    break;
+                            }
+                        });
+                    }
+                },
+                "options":{
+                    template: `
+                            <div v-trigger class = "select">
+                                <button v-for = "i in arr">{{i}}</button>
+                            </div>
+                              `,
+                    data(){
+                        return{
+                            arr: ['重置', '分步', '分段', '运行'],
+                        }
+                    },
+                    directives:{
+                        trigger:{
+                            inserted: function(){
+                                var btn = document.getElementsByTagName("button"),
+                                    sq = document.getElementsByClassName("square"),
+                                    len = btn.length;
+                                for(var i = 0;i < len;i++){
+                                    btn[i].onclick = (function(i){
+                                        return function(){
+                                            bus.$emit('pass', i, sq);
+                                        }
+                                    })(i)
+                                }
+                            }
+                        }
+                    }
+                },
+            }
+        })
+
+    </script>
+</body>
+</html>
+
