@@ -1,6 +1,0 @@
-fractals:recursion
-explorationRecursion:recursion
-definitionRecursion:recursion
-recursion:functionCalls,collections
-functionCalls:simpleC++
-collections:simpleC++
