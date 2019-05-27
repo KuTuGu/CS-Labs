@@ -3,6 +3,10 @@
 .DS_*
 .vscode
 
+# Execute
+a.out
+a.out*
+
 # Logs
 logs
 *.log
